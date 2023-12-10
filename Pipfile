@@ -1,0 +1,18 @@
+[[source]] # Here goes your package sources (where you are downloading your packages from).
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages] # Here goes your package requirements for running the application and its versions (which packages you will use when running the application).
+azure-identity = "=1.15.0"
+azure-storage-blob = "=12.19.0"
+azure-mgmt-storage = "=21.1.0"
+azure-keyvault-secrets = "=4.7.0"
+argparse = "=1.4.0"
+python-dotenv= "=1.0.0"
+
+[dev-packages] # Here goes your package requirements for developing the application and its versions (which packages you will use when developing the application)
+pylint = "*"
+
+[requires] # Here goes your required Python version.
+python_version = "3"
