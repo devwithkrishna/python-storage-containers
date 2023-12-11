@@ -7,6 +7,7 @@ from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions
 
+
 def get_storage_account_url(storage_account: str):
     """
     returns the URL of storage account
@@ -18,6 +19,7 @@ def get_storage_account_url(storage_account: str):
     storage_account_url = f"https://{storage_account}.blob.core.windows.net"
     print(f"Storage account URL is : {storage_account_url}")
     return storage_account_url
+
 
 def create_container_on_storage_account(storage_account: str, container_name: str):
     """
@@ -46,6 +48,7 @@ def delete_container_on_storage_account(storage_account:str, container_name: str
     blob_service_client.delete_container(container=container_name)
     print(f"Container {container_name} deleted from {storage_account}")
 
+
 def create_blob_service_client(storage_account: str):
     """
     Create a blob service client for blob operations
@@ -60,7 +63,8 @@ def create_blob_service_client(storage_account: str):
     blob_service_client = BlobServiceClient(storage_account_url, credential=default_credential)
     return blob_service_client
 
-def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyvault_name: str, secret_name: str):
+
+def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyvault_name: str, secret_name: str, container_name: str, action: str):
     """
     works with azure storage account - especially blobs
     Pre requisites: this function expects the storage account access key to be configured as a secret in kv
@@ -72,6 +76,8 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
     : params time_limit_of_sas_token --> validity of sas token in hoours
     : params keyvault_name --> key vault name
     : params secret_name --> secret name
+    : params container_name --> container name 
+    : params action --> create_container / delete_container
     """
     # Get storage account access key from Key vault
     account_key = get_access_key_from_kv(keyvault_name, secret_name)
@@ -88,6 +94,16 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
     print(f"SAS Token for {storage_account} for {time_limit_of_sas_token} hour is: {sas_token}")
     storage_account_url = get_storage_account_url(storage_account=storage_account)
     
+    if action == "create_container":
+        create_container_on_storage_account(storage_account=storage_account, container_name=container_name)
+        print(f"Action {action} created {container_name} on {storage_account}")
+    elif action == "delete_container":
+        delete_container_on_storage_account(storage_account=storage_account,container_name=container_name)
+        print(f"Action {action} {container_name} on {storage_account}")
+    else:
+        print(f"provided invalid action. please provide one among the available choices")
+
+    
 
 def main():
     """
@@ -98,6 +114,7 @@ def main():
     parser.add_argument('--time_limit_of_sas_token', help='time limit of SAS token', type=int, default= 1, required=True)
     parser.add_argument('--keyvault_name', help='keyvault name in which storage account key secret set', type=str)
     parser.add_argument('--secret_name', help='storage account access key secret name', type=str)
+    parser.add_argument('--action', required=True, help= 'create container / delete container/ etc', type= str, choices=['create_container', 'delete_container',], type=str)
     parser.add_argument('--container_name', type=str, help='container name')
     args = parser.parse_args()
     storage_account = args.storage_account
@@ -105,10 +122,11 @@ def main():
     keyvault_name = args.keyvault_name
     secret_name = args.secret_name
     container_name = args.container_name
+    action = args.action
     load_dotenv()
-    delete_container_on_storage_account(storage_account=storage_account, container_name=container_name)
-    create_container_on_storage_account(storage_account=storage_account, container_name=container_name)
-    azure_storage_blob(storage_account=storage_account, time_limit_of_sas_token=time_limit_of_sas_token, keyvault_name=keyvault_name, secret_name=secret_name)
+    # delete_container_on_storage_account(storage_account=storage_account, container_name=container_name)
+    # create_container_on_storage_account(storage_account=storage_account, container_name=container_name)
+    azure_storage_blob(storage_account=storage_account, time_limit_of_sas_token=time_limit_of_sas_token, keyvault_name=keyvault_name, secret_name=secret_name, container_name=container_name, action=action)
     
     
 if __name__ == '__main__':
