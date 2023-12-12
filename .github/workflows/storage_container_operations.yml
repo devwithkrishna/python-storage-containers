@@ -43,6 +43,8 @@ jobs:
         uses: actions/checkout@v4
       - name: set up python
         uses: actions/setup-python@v2
+        with:
+          python-version : '3.11'
       - name: package installations
         run: |
           pip install pipenv
