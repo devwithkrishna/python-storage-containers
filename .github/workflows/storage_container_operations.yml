@@ -56,8 +56,8 @@ jobs:
           --secret_name ${{ github.event.inputs.secret_name }} \
           --time_limit_of_sas_token ${{  github.event.inputs.time_limit_of_sas_token }} \
           --storage_account ${{ github.event.inputs.storage_account }} \
-          --container_name ${{ github.event.inputs.container_name }}\
-          --action ${{ github.event.inputs.action }}
+          --action ${{ github.event.inputs.action }} \
+          --container_name ${{ github.event.inputs.container_name }}
       - name: program execution completed
         run: echo "program execution completed"
     
