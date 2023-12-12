@@ -3,10 +3,9 @@ import argparse
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from get_secret_from_kv import get_access_key_from_kv
-from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions
-from azure.storage.blob import ContainerClient
+
 
 def get_storage_account_url(storage_account: str):
     """
@@ -48,6 +47,7 @@ def delete_container_on_storage_account(storage_account:str, container_name: str
     blob_service_client = create_blob_service_client(storage_account=storage_account)
     blob_service_client.delete_container(container=container_name)
     print(f"Container {container_name} deleted from {storage_account}")
+
 
 ## stack overflow link: https://stackoverflow.com/questions/77643982/i-am-getting-an-error-while-using-azure-stprage-blob-sdk-while-undeleting-a-cont
 def recover_soft_deleted_containers_on_storage_account(storage_account: str, container_name: str):
@@ -113,6 +113,7 @@ def list_containers_on_storage_account(storage_account: str):
         print(f"Container last modified on : {container_lastmodifiedd}")
     print(f"Containers listed on {storage_account}")
 
+
 def create_blob_service_client(storage_account: str):
     """
     Create a blob service client for blob operations
@@ -176,7 +177,6 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
     else:
         print(f"provided invalid action. please provide one among the available choices")
 
-    
 
 def main():
     """
@@ -197,8 +197,6 @@ def main():
     container_name = args.container_name
     action = args.action
     load_dotenv()
-    # delete_container_on_storage_account(storage_account=storage_account, container_name=container_name)
-    # create_container_on_storage_account(storage_account=storage_account, container_name=container_name)
     azure_storage_blob(storage_account=storage_account, time_limit_of_sas_token=time_limit_of_sas_token, keyvault_name=keyvault_name, secret_name=secret_name, container_name=container_name, action=action)
     
     
