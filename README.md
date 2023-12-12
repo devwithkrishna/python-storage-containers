@@ -1,6 +1,6 @@
 # python-storage-blob
 
-azure storage blob modifications using python sdk and create workflow
+azure storage container modifications using python sdk and create workflow
 
 ## Pre requesites
 
