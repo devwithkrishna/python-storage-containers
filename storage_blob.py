@@ -73,6 +73,26 @@ def recover_soft_deleted_containers_on_storage_account(storage_account: str, con
     print(f"Container {container_name} recovered from {storage_account}")
 
 
+def recover_all_deleted_containers_from_storage_account(storage_account: str):
+    """
+    recover_all_deleted_containers
+    Args:
+        storage_account:
+
+    Returns:
+        recovers all deleted containers
+    """
+    blob_service_client = create_blob_service_client(storage_account=storage_account)
+    container_list = list(blob_service_client.list_containers(include_deleted=True))
+    assert len(container_list) >= 1
+    for container in container_list:
+        # Find the deleted container and restore it
+        if container.deleted :
+            restored_container_client = blob_service_client.undelete_container(
+                deleted_container_name=container.name, deleted_container_version=container.version)
+            print(f"Container {container.name} recovered from {storage_account}")
+
+
 def list_containers_on_storage_account(storage_account: str):
     """
     function to return name of containers in mentioned storage account
@@ -150,6 +170,9 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
     elif action == "recover_container":
         recover_soft_deleted_containers_on_storage_account(storage_account=storage_account,container_name=container_name)
         print(f"Action {action} on storage account {storage_account}")
+    elif action == "recover_all_deleted_containers":
+        recover_all_deleted_containers_from_storage_account(storage_account=storage_account)
+        print(f"Recovered all deleted containers from {storage_account}")
     else:
         print(f"provided invalid action. please provide one among the available choices")
 
@@ -164,7 +187,7 @@ def main():
     parser.add_argument('--time_limit_of_sas_token', help='time limit of SAS token', type=float, default= 1, required=True)
     parser.add_argument('--keyvault_name', help='keyvault name in which storage account key secret set', type=str)
     parser.add_argument('--secret_name', help='storage account access key secret name', type=str)
-    parser.add_argument('--action', required=True, help= 'create container / delete container/ etc', type= str, choices=['create_container', 'delete_container','list_containers','recover_container'])
+    parser.add_argument('--action', required=True, help= 'create container / delete container/ etc', type= str, choices=['create_container', 'delete_container','list_containers','recover_container','recover_all_deleted_containers'])
     parser.add_argument('--container_name', type=str, help='container name')
     args = parser.parse_args()
     storage_account = args.storage_account
