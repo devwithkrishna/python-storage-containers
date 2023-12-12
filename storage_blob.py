@@ -49,7 +49,7 @@ def delete_container_on_storage_account(storage_account:str, container_name: str
     blob_service_client.delete_container(container=container_name)
     print(f"Container {container_name} deleted from {storage_account}")
 
-
+## stack overflow link: https://stackoverflow.com/questions/77643982/i-am-getting-an-error-while-using-azure-stprage-blob-sdk-while-undeleting-a-cont
 def recover_soft_deleted_containers_on_storage_account(storage_account: str, container_name: str):
     """
     recover soft deleted containers.
@@ -63,13 +63,20 @@ def recover_soft_deleted_containers_on_storage_account(storage_account: str, con
 
     """
     blob_service_client = create_blob_service_client(storage_account=storage_account)
-    recovered_containers = blob_service_client.undelete_container(container_name, deleted_container_version = '')
+    container_list = list(blob_service_client.list_containers(include_deleted=True))
+    assert len(container_list) >= 1
+    for container in container_list:
+        # Find the deleted container and restore it
+        if container.deleted and container.name == container_name:
+            restored_container_client = blob_service_client.undelete_container(
+                deleted_container_name=container.name, deleted_container_version=container.version)
     print(f"Container {container_name} recovered from {storage_account}")
 
 
 def list_containers_on_storage_account(storage_account: str):
     """
     function to return name of containers in mentioned storage account
+    Includes deleted containers with in soft delete period
     Args:
         storage_account:
 
@@ -77,8 +84,9 @@ def list_containers_on_storage_account(storage_account: str):
     list of containers
     """
     blob_service_client = create_blob_service_client(storage_account=storage_account)
-    list_of_containers = blob_service_client.list_containers()
+    list_of_containers = blob_service_client.list_containers(include_deleted=True)
     for container in list_of_containers:
+
         containername = container.name
         container_lastmodifiedd = container.last_modified
         print(f"Container name is : {containername}")
