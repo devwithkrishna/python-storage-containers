@@ -187,7 +187,7 @@ def main():
     parser.add_argument('--time_limit_of_sas_token', help='time limit of SAS token', type=float, default= 1, required=True)
     parser.add_argument('--keyvault_name', help='keyvault name in which storage account key secret set', type=str)
     parser.add_argument('--secret_name', help='storage account access key secret name', type=str)
-    parser.add_argument('--action', required=True, help= 'create container / delete container/ etc', type= str, choices=['create_container', 'delete_container','list_containers','recover_container','recover_all_deleted_containers'])
+    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers', type= str, choices=['create_container', 'delete_container','list_containers','recover_container','recover_all_deleted_containers'])
     parser.add_argument('--container_name', type=str, help='container name')
     args = parser.parse_args()
     storage_account = args.storage_account
