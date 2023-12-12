@@ -1,0 +1,62 @@
+name: azure storage container operations
+on:
+  workflow_dispatch:
+    inputs:
+      keyvault_name:
+        description: 'The Azure Key Vault to use'
+        type: string
+      storage_account: 
+        required: true
+        type: string
+        description: 'azure storage account name'
+      action:
+        description: 'action to be performed on storage account'
+        required: true
+        type: choice
+        options:
+          - create_container
+          - delete_container
+          - list_containers 
+          - recover_container
+          - recover_all_deleted_containers
+      secret_name:
+        required: true
+        description: 'secret name of storage account key configured in key vault'
+        type: string
+      time_limit_of_sas_token:
+        required: true
+        default: 1
+        type: number
+      container_name:
+        type: string
+        description: 'Container Name (required for create/delete/recover actions)'
+jobs:
+  storage-container-operations:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: set up python
+        uses: actions/setup-python@v2
+      - name: package installations
+        run: |
+          pip install pipenv
+          pipenv install
+          pipenv graph
+      - name : run python program
+        run: |
+          pipenv run python3 storage_containers.py --keyvault_name ${{ github.event.inputs.keyvault_name }} \
+          --secret_name ${{ github.event.inputs.secret_name }} \
+          --time_limit_of_sas_token ${{  github.event.inputs.time_limit_of_sas_token }} \
+          --storage_account ${{ github.event.inputs.storage_account }} \
+          --container_name ${{ github.event.inputs.container_name }}\
+          --action ${{ github.event.inputs.action }}
+      - name: program execution completed
+        run: echo "program execution completed"
+    
+
+  

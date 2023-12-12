@@ -49,7 +49,7 @@ azure storage container modifications using python sdk and create workflow
                                             --secret_name ARM-ACCESS-KEY \
                                             --time_limit_of_sas_token 0.5 \
                                             --storage_account techarchitectssa \
-                                            --container_name test2 1\
+                                            --container_name test2 \
                                             --action recover_all_deleted_containers 
                                                                   
    ```

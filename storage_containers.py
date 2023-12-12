@@ -49,6 +49,17 @@ def delete_container_on_storage_account(storage_account:str, container_name: str
     print(f"Container {container_name} deleted from {storage_account}")
 
 
+# def delete_multiple_contaners_on_storage_aaccount(storage_account: str, *container_name: str):
+#     """
+#     deletes multiple containers in a single run
+#     Args:
+#         storage_account:
+#         *container_name:
+
+#     Returns:
+
+#     """
+
 ## stack overflow link: https://stackoverflow.com/questions/77643982/i-am-getting-an-error-while-using-azure-stprage-blob-sdk-while-undeleting-a-cont
 def recover_soft_deleted_containers_on_storage_account(storage_account: str, container_name: str):
     """
@@ -187,7 +198,7 @@ def main():
     parser.add_argument('--time_limit_of_sas_token', help='time limit of SAS token', type=float, default= 1, required=True)
     parser.add_argument('--keyvault_name', help='keyvault name in which storage account key secret set', type=str)
     parser.add_argument('--secret_name', help='storage account access key secret name', type=str)
-    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers', type= str, choices=['create_container', 'delete_container','list_containers','recover_container','recover_all_deleted_containers'])
+    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers', type= str, choices=[  ])
     parser.add_argument('--container_name', type=str, help='container name')
     args = parser.parse_args()
     storage_account = args.storage_account
