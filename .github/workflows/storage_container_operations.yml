@@ -29,7 +29,7 @@ on:
         type: number
       container_name:
         type: string
-        default: ''
+        default: ''''
         required: true
         description: 'Container Name (required for create/delete/recover actions)'
 jobs:
