@@ -43,7 +43,6 @@ def delete_container_on_storage_account(storage_account:str, container_name: str
         container_name:
     Returns:
     """
-    container_client = BlobServiceClient.undelete_container()
     blob_service_client = create_blob_service_client(storage_account=storage_account)
     blob_service_client.delete_container(container=container_name)
     print(f"Container {container_name} deleted from {storage_account}")
