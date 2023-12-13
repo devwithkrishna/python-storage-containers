@@ -30,6 +30,7 @@ on:
       container_name:
         type: string
         default: ''
+        required: true
         description: 'Container Name (required for create/delete/recover actions)'
 jobs:
   storage-container-operations:
