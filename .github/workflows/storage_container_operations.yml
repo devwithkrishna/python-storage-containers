@@ -29,9 +29,9 @@ on:
         type: number
       container_name:
         type: string
-        default: ''
+        default: "''"
         required: true
-        description: 'Container Name (required for create/delete/recover actions). Enter ''' for list / recover_all_deleted container action'
+        description: 'Container Name (required for create/delete/recover actions). Enter  for list / recover_all_deleted container action'
 jobs:
   storage-container-operations:
     runs-on: ubuntu-latest
