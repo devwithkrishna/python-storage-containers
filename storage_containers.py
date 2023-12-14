@@ -29,10 +29,16 @@ def create_container_on_storage_account(storage_account: str, container_name: st
 
     Returns:
     """
-    container_name = container_name
     blob_service_client = create_blob_service_client(storage_account=storage_account)
-    container_client = blob_service_client.create_container(container_name)
-    print(f"Container {container_name} created on {storage_account}")
+    list_container_names = container_name.split(",")
+    for container_name in list_container_names:
+
+        try:
+            container_client = blob_service_client.create_container(container_name)
+            print(f"Container {container_name} created on {storage_account}")
+
+        except Exception as err:
+            print(f"Error deleting container '{container_name}': {str(err)}")
 
 
 def delete_container_on_storage_account(storage_account:str, container_name: str):
@@ -48,17 +54,30 @@ def delete_container_on_storage_account(storage_account:str, container_name: str
     print(f"Container {container_name} deleted from {storage_account}")
 
 
-# def delete_multiple_contaners_on_storage_aaccount(storage_account: str, *container_name: str):
-#     """
-#     deletes multiple containers in a single run
-#     Args:
-#         storage_account:
-#         *container_name:
+def delete_multiple_contaners_on_storage_aaccount(storage_account: str, container_name: str):
+    """
+    deletes multiple containers in a single run
+    Args:
+        storage_account:
+        *container_name:
 
-#     Returns:
+    Returns:
 
-#     """
+    """
+    blob_service_client = create_blob_service_client(storage_account=storage_account)
+    list_container_name = container_name.split(",")
+    # Iterating through multiple container names
+    for container_name in list_container_name:
+        try:
+            blob_service_client.delete_container(container_name)
+            print(f"Container '{container_name}' deleted successfully.")
 
+        except Exception as err:
+            print(f"Error deleting container '{container_name}': {str(err)}")
+
+    print(f"Deleting containers completed!!!!!!!!!!!!!!!!!!!!!!")      
+        
+        
 ## stack overflow link: https://stackoverflow.com/questions/77643982/i-am-getting-an-error-while-using-azure-stprage-blob-sdk-while-undeleting-a-cont
 def recover_soft_deleted_containers_on_storage_account(storage_account: str, container_name: str):
     """
@@ -95,13 +114,15 @@ def recover_all_deleted_containers_from_storage_account(storage_account: str):
     blob_service_client = create_blob_service_client(storage_account=storage_account)
     container_list = list(blob_service_client.list_containers(include_deleted=True))
     assert len(container_list) >= 1
-    for container in container_list:
-        # Find the deleted container and restore it
-        if container.deleted :
-            restored_container_client = blob_service_client.undelete_container(
-                deleted_container_name=container.name, deleted_container_version=container.version)
-            print(f"Container {container.name} recovered from {storage_account}")
-
+    try:
+        for container in container_list:
+            # Find the deleted container and restore it
+            if container.deleted :
+                restored_container_client = blob_service_client.undelete_container(
+                    deleted_container_name=container.name, deleted_container_version=container.version)
+                print(f"Container {container.name} recovered from {storage_account}")
+    except Exception as err:
+        print(f"Unable to recover container :{container.name}")
 
 def list_containers_on_storage_account(storage_account: str):
     """
@@ -184,6 +205,8 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
     elif action == "recover_all_deleted_containers":
         recover_all_deleted_containers_from_storage_account(storage_account=storage_account)
         print(f"Recovered all deleted containers from {storage_account}")
+    elif action== "delete_multiple_containers":
+        delete_multiple_contaners_on_storage_aaccount(storage_account=storage_account, container_name=container_name)
     else:
         print(f"provided invalid action. please provide one among the available choices")
 
@@ -197,7 +220,7 @@ def main():
     parser.add_argument('--time_limit_of_sas_token', help='time limit of SAS token', type=float, default= 1, required=True)
     parser.add_argument('--keyvault_name', help='keyvault name in which storage account key secret set', type=str)
     parser.add_argument('--secret_name', help='storage account access key secret name', type=str)
-    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers', type= str, choices=[ 'create_container','delete_container','list_containers','recover_container','recover_all_deleted_containers'])
+    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers', type= str, choices=[ 'create_container','delete_container','delete_multiple_containers','list_containers','recover_container','recover_all_deleted_containers'])
     parser.add_argument('--container_name', type=str, help='container name',default='', required=True)
     args = parser.parse_args()
     storage_account = args.storage_account
