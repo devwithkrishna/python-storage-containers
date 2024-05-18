@@ -16,6 +16,7 @@ azure storage container modifications using python sdk and create workflow
 * it can recover a deleted container (soft delete enabled on storage account) from name
 * it can recover all deleted containers in storage account
 * it can list all containers and last modified date
+* it can copy contents of a container to another (blob contents alone)
 
 
 ## What is the new features to be added? 
@@ -30,14 +31,14 @@ azure storage container modifications using python sdk and create workflow
 
 ## Parameters
 
-| parameter name| positional params| optional params | description                                                                                                |
-|---------------|------------------|-----------------|------------------------------------------------------------------------------------------------------------|
-|storage_account| yes              | no              | storage account we are dealing with                                                                        |
-|time_limit_of_sas_token| yes      | no              | time limit for SAS token to be alive in hours                                                              |
-|keyvault_name |       yes         | no              | keyvault in which storage account key is stored as a secret                                                |
-|secret_name   | yes               | no              | secret name of storage account access key in key vault                                                     |
-|container_name| no                | yes             | used for creating / deleting a container/ recovering a deleted container                                   |
- |action        |  yes             | no              | create_container / delete_container / list_containers / recover_container / recover_all_deleted_containers |
+| parameter name| positional params| optional params | description                                                                                                   |
+|---------------|------------------|-----------------|---------------------------------------------------------------------------------------------------------------|
+|storage_account| yes              | no              | storage account we are dealing with                                                                           |
+|time_limit_of_sas_token| yes      | no              | time limit for SAS token to be alive in hours                                                                 |
+|keyvault_name |       yes         | no              | keyvault in which storage account key is stored as a secret                                                   |
+|secret_name   | yes               | no              | secret name of storage account access key in key vault                                                        |
+|container_name| no                | yes             | used for creating / deleting a container/ recovering a deleted container                                      |
+|action        |  yes             | no              | create_container / delete_container / list_containers / recover_container / recover_all_deleted_containers / copy_data_from_one_container_to_another |
 
 
 ## How to run the code

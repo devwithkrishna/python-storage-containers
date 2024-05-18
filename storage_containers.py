@@ -159,6 +159,58 @@ def create_blob_service_client(storage_account: str):
     blob_service_client = BlobServiceClient(storage_account_url, credential=default_credential)
     return blob_service_client
 
+def copy_contents_of_a_container_to_another_on_same_storage_account(storage_account: str,container_copy_from: str, container_copy_to:str):
+
+    """
+    Copy the contents of a container on a storage accounts to another on same storage account
+    Returns:
+    """
+    blob_service_client = create_blob_service_client(storage_account=storage_account)
+    all_containers = blob_service_client.list_containers(include_deleted=False)
+    container_names = []
+    for container in all_containers:
+        # print(container.name)
+        container_names.append(container.name)
+
+    # Checking if the container from which we need to copy is present or not
+    for container in all_containers:
+        if container_copy_from == container.name :
+            print(f'Found {container_copy_from} in {storage_account}')
+            break
+        else:
+            print(f'container name is {container.name}')
+            print(f'The container provided {container_copy_from} is not yet found on {storage_account}')
+
+    # Checking if container to which we need to copy is present ot not
+    if container_copy_to in container_names:
+        print(f'Container to copy the data {container_copy_to} is present')
+
+    else:
+        print(f'Creating new container with name {container_copy_to} on {storage_account}')
+        create_container_on_storage_account(storage_account=storage_account, container_name=container_copy_to)
+    print(f'Listing blobs from {container_copy_from}')
+
+    # Get source container client
+    source_container_client = blob_service_client.get_container_client(container=container_copy_from)
+    print(f'Copying data being processed......')
+
+    # Loop through blobs in source container
+    for blob in source_container_client.list_blobs():
+        source_blob_client = source_container_client.get_blob_client(blob.name)
+        destination_blob_client = blob_service_client.get_blob_client(container=container_copy_to,blob=blob.name)
+
+        # Initiate copy for each blob
+        copy_future = destination_blob_client.start_copy_from_url(source_blob_client.url)
+
+        print("Copying blob:", blob.name)
+        # Check for copy errors
+        if copy_future['copy_status'] == 'success':
+            print("  ", blob.name, "copied successfully!")
+        else:
+            print("  Error copying", blob.name, ":", copy_future.exception())
+
+    print("process completed...")
+
 
 def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyvault_name: str, secret_name: str, container_name: str, action: str):
     """
@@ -177,13 +229,12 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
     """
     # Get storage account access key from Key vault
     account_key = get_access_key_from_kv(keyvault_name, secret_name)
-    
     # Generate SAS token for the storage account for an hour by default or specified value
     sas_token = generate_account_sas(
     account_name=storage_account,
     account_key=account_key,
     resource_types=ResourceTypes(service=True),
-    permission=AccountSasPermissions(read=True),
+    permission=AccountSasPermissions(read=True, create=True, write=True),
     expiry=datetime.utcnow() + timedelta(hours=time_limit_of_sas_token)
     )
 
@@ -207,6 +258,9 @@ def azure_storage_blob(storage_account: str, time_limit_of_sas_token: int, keyva
         print(f"Recovered all deleted containers from {storage_account}")
     elif action== "delete_multiple_containers":
         delete_multiple_contaners_on_storage_aaccount(storage_account=storage_account, container_name=container_name)
+    elif action == "copy_data_from_one_container_to_another":
+        copy_contents_of_a_container_to_another_on_same_storage_account(storage_account=storage_account, container_copy_from="env-secrets", container_copy_to="new-env-secrets")
+
     else:
         print(f"provided invalid action. please provide one among the available choices")
 
@@ -220,7 +274,7 @@ def main():
     parser.add_argument('--time_limit_of_sas_token', help='time limit of SAS token', type=float, default= 1, required=True)
     parser.add_argument('--keyvault_name', help='keyvault name in which storage account key secret set', type=str)
     parser.add_argument('--secret_name', help='storage account access key secret name', type=str)
-    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers', type= str, choices=[ 'create_container','delete_container','delete_multiple_containers','list_containers','recover_container','recover_all_deleted_containers'])
+    parser.add_argument('--action', required=True, help= 'create container / delete container/ list containers/ recover container or containers / copy data from one container to another', type= str, choices=[ 'create_container','delete_container','delete_multiple_containers','list_containers','recover_container','recover_all_deleted_containers','copy_data_from_one_container_to_another'])
     parser.add_argument('--container_name', type=str, help='container name',default='', required=True)
     args = parser.parse_args()
     storage_account = args.storage_account
