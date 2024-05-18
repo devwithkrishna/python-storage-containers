@@ -19,6 +19,7 @@ on:
           - list_containers 
           - recover_container
           - recover_all_deleted_containers
+          - copy_data_from_one_container_to_another
       secret_name:
         required: true
         description: 'secret name of storage account key configured in key vault'
