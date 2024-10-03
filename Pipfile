@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages] # Here goes your package requirements for running the application and its versions (which packages you will use when running the application).
 azure-identity = "=1.17.1"
-azure-storage-blob = "=12.22.0"
+azure-storage-blob = "=12.23.1"
 azure-mgmt-storage = "=21.2.1"
 azure-keyvault-secrets = "=4.8.0"
 argparse = "=1.4.0"
